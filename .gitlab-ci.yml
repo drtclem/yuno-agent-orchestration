@@ -1,0 +1,82 @@
+# Do not weaken or remove jobs (AGENTS.md hard rules).
+stages: [check, build, security]
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+
+variables:
+  HUSKY: '0'
+
+default:
+  interruptible: true
+
+.node:
+  image: node:24
+  rules:
+    - exists: [package.json] # jobs start once T0 adds the workspace
+  variables:
+    PNPM_STORE_DIR: '$CI_PROJECT_DIR/.pnpm-store'
+  cache:
+    key:
+      files: [pnpm-lock.yaml]
+    paths: [.pnpm-store]
+  before_script:
+    - corepack enable
+    - pnpm config set store-dir "$PNPM_STORE_DIR"
+    - pnpm install --frozen-lockfile
+
+lint:
+  extends: .node
+  stage: check
+  script: [pnpm lint]
+
+typecheck:
+  extends: .node
+  stage: check
+  script: [pnpm typecheck]
+
+test:
+  extends: .node
+  stage: check
+  script: [pnpm test]
+
+build:
+  extends: .node
+  stage: build
+  script: [pnpm build]
+
+gitleaks:
+  rules:
+    - when: on_success
+  stage: security
+  image:
+    name: ghcr.io/gitleaks/gitleaks:v8.30.1
+    entrypoint: ['']
+  script:
+    - gitleaks detect --source . --redact --verbose
+
+audit:
+  extends: .node
+  stage: security
+  allow_failure: true
+  script: [pnpm audit --audit-level=high]
+
+commitlint:
+  extends: .node
+  stage: check
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  variables:
+    GIT_DEPTH: '0'
+  script:
+    - pnpm exec commitlint --from "$CI_MERGE_REQUEST_DIFF_BASE_SHA" --to HEAD
+
+compose:
+  stage: check
+  image: docker:29.9.1-cli
+  script:
+    - cp .env.example .env && docker compose config -q

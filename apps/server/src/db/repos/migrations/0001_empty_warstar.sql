@@ -1,0 +1,1 @@
+ALTER TABLE `runs` ADD `graph_snapshot_json` text;

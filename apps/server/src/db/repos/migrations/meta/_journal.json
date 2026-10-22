@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1792461274263,
+      "tag": "0000_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1792502038970,
+      "tag": "0001_empty_warstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1792507610738,
+      "tag": "0002_silent_mephisto",
+      "breakpoints": true
+    }
+  ]
+}

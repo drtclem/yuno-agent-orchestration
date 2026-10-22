@@ -1,0 +1,10 @@
+**/node_modules
+**/dist
+**/coverage
+.git
+.env*
+data
+logs
+.codex
+.pnpm-store
+**/*.log

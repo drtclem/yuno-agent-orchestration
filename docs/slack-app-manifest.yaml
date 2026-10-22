@@ -1,0 +1,33 @@
+# Create at https://api.slack.com/apps -> Create New App -> From a manifest -> paste this.
+# Then: Basic Information -> App-Level Tokens -> generate one with scope connections:write (SLACK_APP_TOKEN, xapp-...)
+#       Install App -> Install to Workspace -> copy the Bot User OAuth Token (SLACK_BOT_TOKEN, xoxb-...)
+display_information:
+  name: Yuno Agent
+  description: Chat with a Yuno agent
+features:
+  app_home:
+    home_tab_enabled: false
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: false
+  bot_user:
+    display_name: yuno
+    always_online: true
+oauth_config:
+  scopes:
+    bot:
+      - app_mentions:read
+      - chat:write
+      - im:history
+      - im:read
+      - im:write
+      - users:read
+settings:
+  event_subscriptions:
+    bot_events:
+      - app_mention
+      - message.im
+  interactivity:
+    is_enabled: false
+  org_deploy_enabled: false
+  socket_mode_enabled: true
+  token_rotation_enabled: false

@@ -1,0 +1,4 @@
+# Project-scoped Codex settings. Loaded only when this project is trusted.
+[agents]
+max_threads = 4
+max_depth = 1

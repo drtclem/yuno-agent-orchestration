@@ -1,0 +1,62 @@
+services:
+  opencode:
+    build:
+      context: .
+      dockerfile: docker/opencode.Dockerfile
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      XDG_DATA_HOME: /var/lib
+    volumes:
+      - ./data/workspaces:/data/workspaces
+      - ./data/deployments:/deployments
+      - opencode-data:/var/lib/opencode
+    healthcheck:
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://127.0.0.1:4096/global/health',{signal:AbortSignal.timeout(5000)}).then(async r=>{if(!r.ok || !(await r.json()).healthy)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 6s
+      retries: 6
+      start_period: 20s
+  app:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+    environment:
+      RUNTIME: ${RUNTIME:-opencode}
+      OPENCODE_URL: http://opencode:4096
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:-}
+      SLACK_APP_TOKEN: ${SLACK_APP_TOKEN:-}
+    ports:
+      - '127.0.0.1:3000:3000'
+    volumes:
+      - ./data:/data
+      - ./data/deployments:/deployments
+    depends_on:
+      opencode:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://127.0.0.1:3000/api/health',{signal:AbortSignal.timeout(5000)}).then(async r=>{if(!r.ok || !(await r.json()).ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 6s
+      retries: 6
+      start_period: 10s
+  preview:
+    image: nginx:1.30.6-alpine
+    ports:
+      - '127.0.0.1:8080:80'
+    volumes:
+      - ./data/deployments:/usr/share/nginx/html:ro
+
+volumes:
+  opencode-data:

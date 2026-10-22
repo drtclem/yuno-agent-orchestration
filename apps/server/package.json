@@ -1,0 +1,29 @@
+{
+  "name": "@yuno/server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.build.json && cp -R src/db/repos/migrations dist/db/repos/",
+    "db:generate": "drizzle-kit generate",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@fastify/static": "^10.1.6",
+    "@opencode-ai/sdk": "1.19.3",
+    "@slack/bolt": "^5.1.0",
+    "@yuno/shared": "workspace:*",
+    "better-sqlite3": "^13.0.3",
+    "croner": "^10.0.1",
+    "drizzle-orm": "^0.45.4",
+    "fastify": "^5.12.7",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "drizzle-kit": "^0.31.11",
+    "tsx": "^4.23.15"
+  }
+}
